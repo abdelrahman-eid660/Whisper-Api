@@ -52,9 +52,9 @@ async function bootStrap() {
   await deleteUnconfirmedUsers();
   //application routing
   app.get("/", (req, res) => res.send("Hello World!"));
-  app.use("/saraha/auth", AuthRouter);
-  app.use("/saraha/profile", userRouter);
-  app.use("/saraha/message", messageRouter);
+  app.use("/Whisper/auth", AuthRouter);
+  app.use("/Whisper/profile", userRouter);
+  app.use("/Whisper/message", messageRouter);
   // invalid routing
   app.get("{/*dummy}", (req, res) => {
     return NotFoundException();
