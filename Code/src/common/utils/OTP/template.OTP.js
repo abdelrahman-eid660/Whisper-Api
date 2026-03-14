@@ -1,61 +1,154 @@
-import { FACEBOOK_LINK, INSTAGRAM_LINK, TWITER_LINK } from "../../../../config/config.service.js";
+import {
+  FACEBOOK_LINK,
+  INSTAGRAM_LINK,
+  TWITER_LINK,
+} from "../../../../config/config.service.js";
 
 export const verifyEmailTemplate = ({ code, title = "Verify Your Email" }) => {
   return `<!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
-<style type="text/css">
-  body {
-    background-color: #f0f4f5;
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-  }
-  a { text-decoration: none; }
-  .otp-code {
-    display: inline-block;
-    font-size: 28px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #5D2E8C;
-    padding: 15px 25px;
-    border-radius: 8px;
-    letter-spacing: 4px;
-  }
-  .social-icons img {
-    width: 40px;
-    height: 40px;
-    margin: 0 10px;
-  }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Verification</title>
+
+<style>
+body{
+  margin:0;
+  padding:0;
+  background-color:#f0f4f5;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+.container{
+  width:100%;
+  max-width:600px;
+  margin:auto;
+  background:#ffffff;
+  border-radius:12px;
+  padding:30px;
+  text-align:center;
+}
+
+.logo{
+  width:90px;
+  margin-bottom:10px;
+}
+
+.title{
+  color:#5D2E8C;
+  font-size:26px;
+  margin:10px 0;
+}
+
+.text{
+  color:#555;
+  font-size:16px;
+  margin-bottom:20px;
+}
+
+.otp{
+  display:inline-block;
+  background:#5D2E8C;
+  color:#fff;
+  font-size:30px;
+  font-weight:bold;
+  padding:15px 30px;
+  border-radius:8px;
+  letter-spacing:5px;
+}
+
+.footer{
+  margin-top:30px;
+  font-size:13px;
+  color:#999;
+}
+
+.social img{
+  width:38px;
+  margin:5px;
+}
+
+/* mobile */
+@media only screen and (max-width:600px){
+
+.container{
+  padding:20px;
+}
+
+.title{
+  font-size:22px;
+}
+
+.text{
+  font-size:14px;
+}
+
+.otp{
+  font-size:24px;
+  padding:12px 20px;
+}
+
+.social img{
+  width:32px;
+}
+
+}
 </style>
+</head>
+
 <body>
-  <table border="0" width="60%" style="margin:auto;padding:30px;background-color: #ffffff;border-radius: 12px;box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-    <tr>
-      <td style="text-align:center;">
-        <img width="100px" src="https://res.cloudinary.com/ddajommsw/image/upload/v1670702280/Group_35052_icaysu.png" alt="Whisper Logo"/>
-        <h2 style="color:#5D2E8C;margin-top:10px;">${title}</h2>
-        <p style="color:#333;">Your Whisper verification code is:</p>
-        <p class="otp-code">${code}</p>
-        <p style="color:#555;margin-top:20px;">Enter this code in the app to verify your email address.</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center;padding-top:30px;">
-        <h3 style="color:#333;">Stay in touch</h3>
-        <div class="social-icons">
-          <a href="${FACEBOOK_LINK}" target="_blank"><img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35062_erj5dx.png" alt="Facebook"></a>
-          <a href="${INSTAGRAM_LINK}" target="_blank"><img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35063_zottpo.png" alt="Instagram"></a>
-          <a href="${TWITER_LINK}" target="_blank"><img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group_35064_i8qtfd.png" alt="Twitter"></a>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center;padding-top:30px;color:#aaa;font-size:12px;">
-        &copy; ${new Date().getFullYear()} Whisper. All rights reserved.
-      </td>
-    </tr>
-  </table>
+
+<table width="100%" cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+
+<div class="container">
+
+<img class="logo" src="https://res.cloudinary.com/ddajommsw/image/upload/v1670702280/Group_35052_icaysu.png"/>
+
+<h2 class="title">${title}</h2>
+
+<p class="text">
+Use the verification code below to complete your email verification.
+</p>
+
+<div class="otp">${code}</div>
+
+<p class="text" style="margin-top:20px;">
+If you didn't request this code, you can safely ignore this email.
+</p>
+
+<div style="margin-top:25px;">
+<h3 style="color:#333;">Stay in touch</h3>
+
+<div class="social">
+
+<a href="${FACEBOOK_LINK}">
+<img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35062_erj5dx.png">
+</a>
+
+<a href="${INSTAGRAM_LINK}">
+<img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35063_zottpo.png">
+</a>
+
+<a href="${TWITER_LINK}">
+<img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group_35064_i8qtfd.png">
+</a>
+
+</div>
+</div>
+
+<div class="footer">
+© ${new Date().getFullYear()} Whisper. All rights reserved.
+</div>
+
+</div>
+
+</td>
+</tr>
+</table>
+
 </body>
 </html>`;
 };
