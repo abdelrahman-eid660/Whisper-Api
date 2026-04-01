@@ -103,8 +103,7 @@ Node-cron - Scheduled jobs
 
 Cross-env - Environment variables management
 
-📁 Project Structure
-text
+## 📁 Project Structure
 src/
 ├── common/
 │   ├── enum/          # Constants (Roles, Token Types, etc.)
@@ -115,12 +114,13 @@ src/
 │   ├── models/         # MongoDB models
 │   └── database.service.js
 ├── jobs/               # Scheduled jobs
-├── middleware/         # Middleware (Auth, Validation)
+├── middleware/         # Middleware (Auth, Validation , Error , Limiter)
 ├── modules/
 │   ├── auth/           # Authentication module
 │   ├── message/        # Messages module
 │   └── user/           # User module
 └── upload/             # Local file uploads
+
 🚀 Getting Started
 Prerequisites
 Node.js 18+
