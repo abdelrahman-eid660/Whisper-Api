@@ -151,32 +151,65 @@ npm run start:dev
 
 Production mode:
 npm run start:prod
+## 📚 API Documentation
 
-📚 API Documentation
+### 🔐 Authentication Endpoints
 
-Authentication
-Method	Endpoint	Description
-POST	/Whisper/auth/signup	Create new account
-PATCH	/Whisper/auth/confirm-email	Confirm email address
-POST	/Whisper/auth/login	Login with credentials
-POST	/Whisper/auth/login/gmail	Login with Gmail
-PATCH	/Whisper/auth/forget-password	Request password reset
-PATCH	/Whisper/auth/reset-password	Reset password
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/whisper/auth/signup` | Create a new user account | ❌ No |
+| `PATCH` | `/whisper/auth/confirm-email` | Verify email with OTP code | ❌ No |
+| `POST` | `/whisper/auth/login` | Login with email & password | ❌ No |
+| `POST` | `/whisper/auth/login/gmail` | Login using Google account | ❌ No |
+| `PATCH` | `/whisper/auth/forget-password` | Request password reset OTP | ❌ No |
+| `PATCH` | `/whisper/auth/reset-password` | Reset password with OTP | ❌ No |
+| `PATCH` | `/whisper/auth/resend-confirm-email` | Resend email verification OTP | ❌ No |
+| `PATCH` | `/whisper/auth/resend-confirm-login` | Resend 2FA login OTP | ❌ No |
 
-Users
-Method	Endpoint	Description
-GET	/Whisper/profile	View profile
-PATCH	/Whisper/profile/update-password	Update password
-PATCH	/Whisper/profile/profile-picture	Upload profile picture
-GET	/Whisper/profile/:id	Share profile
-DELETE	/Whisper/profile/:id	Delete account
+---
 
-Messages
-Method	Endpoint	Description
-POST	/Whisper/message/:receiverId	Send message
-GET	/Whisper/message/list	List all messages
-GET	/Whisper/message/:messageId	View specific message
-DELETE	/Whisper/message/:messageId	Delete message
+### 👤 User Management Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/whisper/profile` | Get current user profile | ✅ Yes |
+| `PATCH` | `/whisper/profile/update-password` | Update account password | ✅ Yes |
+| `PATCH` | `/whisper/profile/profile-picture` | Upload/update profile picture | ✅ Yes |
+| `PATCH` | `/whisper/profile/profile-cover-picture` | Upload/update cover photo | ✅ Yes |
+| `GET` | `/whisper/profile/:id` | View public profile info | ✅ Yes |
+| `DELETE` | `/whisper/profile/:id` | Permanently delete account | ✅ Yes |
+| `POST` | `/whisper/profile/logout` | Logout from device(s) | ✅ Yes |
+| `GET` | `/whisper/profile/rotate` | Refresh access token | ✅ Yes |
+| `PATCH` | `/whisper/profile/enable-2Step-verification` | Enable two-factor authentication | ✅ Yes |
+| `PATCH` | `/whisper/profile/confirm-2Step-verification` | Verify 2FA setup | ✅ Yes |
+
+---
+
+### 💬 Message Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/whisper/message/:receiverId` | Send message (anonymous or authenticated) | ⚠️ Optional |
+| `GET` | `/whisper/message/list` | Get all received & sent messages | ✅ Yes |
+| `GET` | `/whisper/message/:messageId` | Get specific message details | ✅ Yes |
+| `DELETE` | `/whisper/message/:messageId` | Delete a message | ✅ Yes |
+
+---
+
+### 📋 Request Examples
+
+#### Sign Up
+```http
+POST /whisper/auth/signup
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "StrongP@ssw0rd",
+  "confirmPassword": "StrongP@ssw0rd",
+  "userName": "John Doe",
+  "phone": "01234567890"
+}
 
 🔒 Security Features
 1. Two-Factor Authentication: Users can enable OTP for login
