@@ -143,46 +143,7 @@ Install dependencies
 
 bash
 npm install
-Set up environment variables
 
-bash
-cp .env.example .env
-Edit .env file
-
-env
-# Server
-PORT=3000
-NODE_ENV=development
-ORIGIN=http://localhost:3000
-
-# Database
-URI=mongodb://localhost:27017/Whisper
-REDIS_URI=redis://localhost:6379
-
-# JWT
-SYSTEM_TOKEN_SECRET_KEY=your_system_access_secret
-SYSTEM_REFREASH_TOKEN_SECRET_KEY=your_system_refresh_secret
-USER_TOKEN_SECRET_KEY=your_user_access_secret
-USER_REFREASH_TOKEN_SECRET_KEY=your_user_refresh_secret
-ACCESS_EXPIRS_IN=15m
-REFREASH_EXPIRS_IN=7d
-
-# Encryption
-ENCRYPTION_SECRET_KEY=your_32_char_encryption_key
-SALT_ROUND=12
-
-# Cloudinary
-CLOUD_NAME=your_cloud_name
-API_KEY=your_api_key
-API_SECRET=your_api_secret
-
-# Email
-EMAIL_APP=your_email@gmail.com
-PASSWORD_APP=your_app_password
-APPLICATION_NAME=Whisper
-
-# Google
-WEB_CLIENT_ID=your_google_client_id
 Run the application
 
 Development mode:
