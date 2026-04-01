@@ -10,7 +10,7 @@ A backend API for an anonymous messaging platform.
 
 ## 🚀 Quick Test with Postman
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://abdelrahman-eid660-4439622.postman.co/workspace/Abdelrahman-Eid's-Workspace~9ce35d28-4927-40cd-8447-99cca6ad1322/collection/48416887-c67f64bb-f077-4d3b-9ab9-3d1d7236e8fb?action=share&source=copy-link&creator=48416887)
+[![Run in Postman](https://run.pstmn.io/button.svg)]([https://abdelrahman-eid660-4439622.postman.co/workspace/Abdelrahman-Eid's-Workspace~9ce35d28-4927-40cd-8447-99cca6ad1322/collection/48416887-c67f64bb-f077-4d3b-9ab9-3d1d7236e8fb?action=share&source=copy-link&creator=48416887](https://documenter.getpostman.com/view/48416887/2sBXiojUHx))
 
 
 A backend API for an anonymous messaging platform similar to "Whisper" (Confessions page). Users can send and receive anonymous messages with advanced security features.
