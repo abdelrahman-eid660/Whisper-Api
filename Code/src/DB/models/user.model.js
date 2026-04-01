@@ -1,29 +1,11 @@
 import mongoose from "mongoose";
 import { GenderEnum, ProviderEnum, RoleEnum } from "../../common/enum/index.js";
-import { type } from "os";
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: {
+    userName: {
       type: String,
-      required: [true, "First name is mandatory"],
-      minLength: 2,
-      maxLength: 25,
-    },
-    middleName: {
-      type: String,
-      required: [
-        function () {
-          return this.provider == ProviderEnum.system;
-        },
-        "Middle name is required for system users",
-      ],
-      minLength: 2,
-      maxLength: 25,
-    },
-    lastName: {
-      type: String,
-      required: [true, "Last name is mandatory"],
+      required: true,
       minLength: 2,
       maxLength: 25,
     },
@@ -59,39 +41,31 @@ const UserSchema = new mongoose.Schema(
       default: RoleEnum.User,
     },
     profilePicture: {
-      public_id : String,
-      secure_url : String,
+      public_id: String,
+      secure_url: String,
     },
-    profileCover:{
-      public_id : String,
-      secure_url : String,
+    profileCover: {
+      public_id: String,
+      secure_url: String,
     },
-    changeCredentialsTime:Date,
+    changeCredentialsTime: Date,
     confirmEmail: {
-      type : Date,
-      default : null
+      type: Date,
+      default: null,
     },
-    isTwoFactorEnabled : {
-      type : Boolean,
-      default : false
-    }
+    isTwoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
     strict: true,
     strictQuery: true,
-    toJSON: true,
-    toObject: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
-UserSchema.virtual("userName")
-  .set(function (value) {
-    const [firstName, middleName, lastName] = value?.split(" ") || [];
-    this.set({ firstName, middleName, lastName });
-  })
-  .get(function () {
-    return `${this.firstName} ${this.middleName} ${this.lastName}`;
-  });
-UserSchema.index({createdAt : 1})
+UserSchema.index({ createdAt: 1 });
 export const userModel =
   mongoose.models.User || mongoose.model("User", UserSchema);

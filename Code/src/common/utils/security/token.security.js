@@ -13,6 +13,7 @@ import { findOne } from "../../../DB/index.js";
 import { userModel } from "../../../DB/models/user.model.js";
 import { randomUUID } from "crypto";
 import { TokenModel } from "../../../DB/models/token.model.js";
+import { get, revokeTokenBaseKey } from "../../services/redis.service.js";
 export const generateToken = async ({
   payload = {},
   secret = USER_TOKEN_SECRET_KEY,
@@ -96,9 +97,6 @@ export const decodeToken = async ({
       message: "Fail to decoded this token aud is required",
     });
   }
-  if (await findOne({model : TokenModel , filter : { jwtid : decode.jti}})) {
-    throw UnauthorizadException({message : "Invalid login session"})
-  }
   const [decodedTokenType, audienceType] = decode.aud;
   if (decodedTokenType !== tokenType) {
     throw BadRequestException({
@@ -115,6 +113,13 @@ export const decodeToken = async ({
         ? refreshSignature
         : accessSignature,
   });
+  const isRevoked = await get({
+    key: revokeTokenBaseKey(verifiedData.jti),
+  });
+
+  if (isRevoked) {
+    throw UnauthorizadException({ message: "Invalid login session" });
+  }
   const user = await findOne({
     model: userModel,
     filter: { _id: verifiedData.sub },
@@ -122,8 +127,8 @@ export const decodeToken = async ({
   if (!user) {
     throw UnauthorizadException({ message: "Not Register account" });
   }
-  if (user.changeCredentialsTime && user.changeCredentialsTime?.getTime() > decode.iat * 1000) {
+  if (user.changeCredentialsTime && user.changeCredentialsTime?.getTime() > verifiedData.iat * 1000) {
     throw UnauthorizadException({message : "Invalid login session"})
   }
-  return {user , decode};
+  return {user , decode : verifiedData};
 };

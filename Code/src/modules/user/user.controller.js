@@ -39,12 +39,12 @@ router.post("/logout", authentication(), async (req, res, next) => {
   const status = await logout(req.body,req.user, req.decode);
   return successResponse(res, status);
 });
+router.get("/:id",async (req, res, next) => {
+  const account = await shareProfile(req.params.id);
+  return successResponse(res, 200, account);
+});
 router.delete("/:id", authentication(), async (req, res, next) => {
   const acconut = await deleteAccount(req.user);
   return successResponse(res, 200 , acconut);
-});
-router.get("/:id", authorization({accessRole : endPoint.Profile}) ,async (req, res, next) => {
-  const account = await shareProfile(req.params.id);
-  return successResponse(res, 200, account);
 });
 export default router;

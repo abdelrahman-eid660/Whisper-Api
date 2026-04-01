@@ -105,7 +105,7 @@ body{
 
 <div class="container">
 
-<img class="logo" src="https://res.cloudinary.com/ddajommsw/image/upload/v1670702280/Group_35052_icaysu.png"/>
+<img class="logo" src="https://res.cloudinary.com/dmf7unksl/image/upload/v1774740493/Whisper__app__logo.svg_nr7fds.png"/>
 
 <h2 class="title">${title}</h2>
 
