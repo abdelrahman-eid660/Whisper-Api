@@ -12,5 +12,5 @@ export const redicConnection = async()=>{
     } catch (error) {
         console.log(`Redis connect Fali` ,error);
         
-    // }
+    }
 }
