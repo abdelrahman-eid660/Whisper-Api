@@ -17,7 +17,7 @@ async function bootStrap() {
 
   //cors
   const corsOptions = {
-    // origin: ORIGIN,
+    origin: ORIGIN,
     credentials: true,
     optionsSuccessStatus: 200,
   };
