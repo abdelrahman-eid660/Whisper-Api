@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { successResponse } from "../../common/utils/response/index.js";
-import { confirm2Step_Verification, deleteAccount, enable2Step_Verification, getUserProfileAndShare, logout, profileCover, profilePicture, rotateToken, updatePassword } from "./user.service.js";
+import { confirm2Step_Verification, deleteAccount, enable2Step_Verification, getUserProfileAndShare, logout, profileCover, profilePicture, rotateToken, updateAccount, updatePassword } from "./user.service.js";
 import {  authentication, authorization, validation } from "../../middleware/index.js";
 import { endPoint } from "./user.auth.js";
 import { TokenTypeEnum } from "../../common/enum/index.js";
@@ -30,11 +30,11 @@ router.patch("/confirm-2Step-veverification", authorization({accessRole : endPoi
   const account = await confirm2Step_Verification(req.body);
   return successResponse(res, 200, account);
 });
-router.patch("/profile-picture",authentication(),cloudFileUpload({validation : fieldValidation.image}).single('profilePicture'),validation(validators.profileImage) ,async (req, res, next) => {
+router.patch("/profile-picture",authentication(),cloudFileUpload({validation : fieldValidation.image , size : 12}).single('profilePicture'),validation(validators.profileImage) ,async (req, res, next) => {
   const account = await profilePicture(req.file , req.user);
   return successResponse(res, 200, account);
 });
-router.patch("/profile-cover-picture",authentication(),cloudFileUpload({validation : fieldValidation.image}).single("profileCover"),validation(validators.profileImage)  ,async (req, res, next) => {
+router.patch("/profile-cover-picture",authentication(),cloudFileUpload({validation : fieldValidation.image , size : 10}).single("profileCover"),validation(validators.profileImage)  ,async (req, res, next) => {
   const account = await profileCover(req.file , req.user);
   return successResponse(res, 200, account);
 });
@@ -45,6 +45,10 @@ router.get("/rotate", authorization({accessRole : endPoint.Profile , tokenType :
 router.post("/logout", authentication(), async (req, res, next) => {
   const status = await logout(req.body,req.user, req.decode);
   return successResponse(res, status);
+});
+router.patch("/:id", authentication(), async (req, res, next) => {
+  const acconut = await updateAccount(req.params.id , req.body);
+  return successResponse(res, 200 , acconut);
 });
 router.delete("/:id", authentication(), async (req, res, next) => {
   const acconut = await deleteAccount(req.user);

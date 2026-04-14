@@ -211,8 +211,7 @@ export const signupWithGmail = async ({ idToken }, issuer) => {
   const user = await create({
     model: userModel,
     data: {
-      firstName: payload.given_name,
-      lastName: payload.family_name,
+      userName : `${payload.given_name} ${payload.family_name}`,
       email: payload.email,
       provider: ProviderEnum.google,
       profilePic: payload.picture,

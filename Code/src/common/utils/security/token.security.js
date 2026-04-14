@@ -8,7 +8,10 @@ import {
   USER_TOKEN_SECRET_KEY,
 } from "../../../../config/config.service.js";
 import { AudienceEnum, RoleEnum, TokenTypeEnum } from "../../enum/index.js";
-import { BadRequestException, UnauthorizadException } from "../response/index.js";
+import {
+  BadRequestException,
+  UnauthorizadException,
+} from "../response/index.js";
 import { findOne } from "../../../DB/index.js";
 import { userModel } from "../../../DB/models/user.model.js";
 import { randomUUID } from "crypto";
@@ -30,21 +33,21 @@ export const verifyToken = async ({
 
 export const getTokenSignature = async (role) => {
   let accessSignature = undefined;
-  let refreshSignature = undefined;
+  let refreashSignature = undefined;
   let audience = AudienceEnum.User;
   switch (role) {
     case RoleEnum.Admin:
       accessSignature = SYSTEM_TOKEN_SECRET_KEY;
-      refreshSignature = SYSTEM_REFREASH_TOKEN_SECRET_KEY;
+      refreashSignature = SYSTEM_REFREASH_TOKEN_SECRET_KEY;
       audience = AudienceEnum.System;
       break;
     default:
       accessSignature = USER_TOKEN_SECRET_KEY;
-      refreshSignature = USER_REFREASH_TOKEN_SECRET_KEY;
+      refreashSignature = USER_REFREASH_TOKEN_SECRET_KEY;
       audience = AudienceEnum.User;
       break;
   }
-  return { accessSignature, refreshSignature, audience };
+  return { accessSignature, refreashSignature, audience };
 };
 
 export const getSignatureLevel = async (audienceType) => {
@@ -61,8 +64,9 @@ export const getSignatureLevel = async (audienceType) => {
 };
 
 export const createLoginCredentials = async (user, issuer) => {
-  const { accessSignature, refreshSignature, audience } = await getTokenSignature(user.role);
-  const jwtId = randomUUID()
+  const { accessSignature, refreashSignature, audience } =
+    await getTokenSignature(user.role);
+  const jwtId = randomUUID();
   const access_Token = await generateToken({
     payload: { sub: user._id },
     secret: accessSignature,
@@ -70,64 +74,86 @@ export const createLoginCredentials = async (user, issuer) => {
       issuer,
       audience: [TokenTypeEnum.Access, audience],
       expiresIn: ACCESS_EXPIRS_IN,
-      jwtid : jwtId
+      jwtid: jwtId,
     },
   });
-  const refresh_Token = await generateToken({
+  const refreash_Token = await generateToken({
     payload: { sub: user._id },
-    secret: refreshSignature,
+    secret: refreashSignature,
     options: {
       issuer,
       audience: [TokenTypeEnum.Refreash, audience],
       expiresIn: REFREASH_EXPIRS_IN,
-      jwtid : jwtId
+      jwtid: jwtId,
     },
   });
-  return { access_Token, refresh_Token };
+  return {
+    user: {
+      _id: user._id,
+      userName: user.userName,
+      profilePicture: user?.profilePicture?.secure_url,
+      profileCover: user?.profileCover?.secure_url,
+      email: user.email,
+    },
+    access_Token,
+    refreash_Token,
+  };
 };
 
 export const decodeToken = async ({
   token,
   tokenType = TokenTypeEnum.Access,
 } = {}) => {
-  const decode = jwt.decode(token);
-  if (!decode?.aud.length) {
-    throw BadRequestException({
-      message: "Fail to decoded this token aud is required",
+  try {
+    const decode = jwt.decode(token);
+    if (!decode?.aud.length) {
+      throw BadRequestException({
+        message: "Fail to decoded this token aud is required",
+      });
+    }
+    const [decodedTokenType, audienceType] = decode.aud;
+    if (decodedTokenType !== tokenType) {
+      throw BadRequestException({
+        message: `Invalid token type token of type ${decodedTokenType} cannot access this api while we expected token of type ${tokenType}`,
+      });
+    }
+    const signatureLevel = await getSignatureLevel(audienceType);
+    const { accessSignature, refreashSignature } =
+      await getTokenSignature(signatureLevel);
+    const verifiedData = await verifyToken({
+      token,
+      secret:
+        tokenType === TokenTypeEnum.Refreash
+          ? refreashSignature
+          : accessSignature,
     });
-  }
-  const [decodedTokenType, audienceType] = decode.aud;
-  if (decodedTokenType !== tokenType) {
-    throw BadRequestException({
-      message: `Invalid token type token of type ${decodedTokenType} cannot access this api while we expected token of type ${tokenType}`,
+    const isRevoked = await get({
+      key: revokeTokenBaseKey(verifiedData.jti),
     });
-  }
-  const signatureLevel = await getSignatureLevel(audienceType);
-  const { accessSignature, refreshSignature } =
-    await getTokenSignature(signatureLevel);
-  const verifiedData = await verifyToken({
-    token,
-    secret:
-      tokenType === TokenTypeEnum.Refreash
-        ? refreshSignature
-        : accessSignature,
-  });
-  const isRevoked = await get({
-    key: revokeTokenBaseKey(verifiedData.jti),
-  });
 
-  if (isRevoked) {
-    throw UnauthorizadException({ message: "Invalid login session" });
+    if (isRevoked) {
+      throw UnauthorizadException({ message: "Invalid login session" });
+    }
+    const user = await findOne({
+      model: userModel,
+      filter: { _id: verifiedData.sub },
+    });
+    if (!user) {
+      throw UnauthorizadException({ message: "Not Register account" });
+    }
+    if (
+      user.changeCredentialsTime &&
+      user.changeCredentialsTime?.getTime() > verifiedData.iat * 1000
+    ) {
+      throw UnauthorizadException({ message: "Invalid login session" });
+    }
+    return { user, decode: verifiedData };
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      throw UnauthorizadException({
+        message: "Token expired",
+      });
+    }
+    throw err;
   }
-  const user = await findOne({
-    model: userModel,
-    filter: { _id: verifiedData.sub },
-  });
-  if (!user) {
-    throw UnauthorizadException({ message: "Not Register account" });
-  }
-  if (user.changeCredentialsTime && user.changeCredentialsTime?.getTime() > verifiedData.iat * 1000) {
-    throw UnauthorizadException({message : "Invalid login session"})
-  }
-  return {user , decode : verifiedData};
 };

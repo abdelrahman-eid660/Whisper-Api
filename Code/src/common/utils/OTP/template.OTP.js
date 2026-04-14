@@ -147,7 +147,7 @@ If you didn't request this code, you can safely ignore this email.
 
 </td>
 </tr>
-</table>
+</table> 
 
 </body>
 </html>`;

@@ -1,5 +1,5 @@
 export const fieldValidation = {
-  image : ['image/jpeg' ,  'image/png' , 'image/gif'],
+  image : ['image/jpeg' ,  'image/png' , 'image/gif' , 'image/jpg' , 'image/JPG' , 'image/heic' , 'image/heif'],
   video : ['video/mp4' ,  'video/mkv' , 'video/avi'],
   audio : ['audio/mpeg' ,  'audio/wav' , 'audio/ogg'],
   pdf : ['application/pdf'],

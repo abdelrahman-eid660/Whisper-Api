@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteMessage, getAllMessage, getMessage, sendMessage } from "./message.service.js";
+import { deleteMessage, getAllMessage, getMessage, markMessageAsRead, sendMessage } from "./message.service.js";
 import { successResponse } from "../../common/utils/response/index.js";
 import { cloudFileUpload, decodeToken, fieldValidation } from "../../common/utils/index.js";
 import * as validators from "./message.validation.js";
@@ -15,7 +15,7 @@ router.post("/:receiverId",
     }
     next()
   },
-  cloudFileUpload({ validation: fieldValidation.image }).array("attachments"),
+  cloudFileUpload({ validation: fieldValidation.image , size : 10}).array("attachments"),
   validation(validators.sendMessage),
   async (req, res, next) => {
     const message = await sendMessage( req.files, req.body, req.params.receiverId, req.user);
@@ -31,6 +31,18 @@ router.get("/:messageId",authorization({accessRole : endPoint.Message}),validati
     const message = await getMessage(req.params.messageId , req.user);
     return successResponse(res, 200, message);
   },
+);
+router.patch(
+  "/:messageId/read",
+  authorization({ accessRole: endPoint.Message }),
+  async (req, res) => {
+    const message = await markMessageAsRead(
+      req.params.messageId,
+      req.user
+    );
+
+    return successResponse(res, 200, message);
+  }
 );
 router.delete("/:messageId",authorization({accessRole : endPoint.Message}),validation(validators.getMessage),async (req, res, next) => {
     const message = await deleteMessage(req.params.messageId , req.user);

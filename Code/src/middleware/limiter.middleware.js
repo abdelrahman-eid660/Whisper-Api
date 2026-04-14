@@ -2,11 +2,11 @@ import { ipKeyGenerator, rateLimit } from "express-rate-limit";
 import geoip from "geoip-lite";
 import { redisClient } from "../DB/index.js";
 export const limiter = rateLimit({
-  windowMs: 2 * 60 * 1000,
+  windowMs: 1 * 60 * 1000,
   limit: (req) => {
     const geo = geoip.lookup(req.ip);
     const country = geo?.country;
-    return country == "EG" ? 5 : 3;
+    return country == "EG" ? 10 : 3;
   },
   standardHeaders: true,
   skipSuccessfulRequests: true,

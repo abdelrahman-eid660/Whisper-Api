@@ -7,7 +7,7 @@ const path =
     ? resolve("config/.env.production")
     : resolve("config/.env.development");
 config({ path });
-export const PORT = process.env.PORT ?? 7000;
+export const PORT = parseInt(process.env.PORT || "3000");
 export const URI = process.env.URI ;
 export const REDIS_URI = process.env.REDIS_URI ;
 
@@ -40,4 +40,4 @@ export const API_KEY = process.env.API_KEY
 export const API_SECRET = process.env.API_SECRET
 
 //====================== Cors ==============================
-export const ORIGIN = process.env.ORIGIN.split('|')
+export const ORIGIN = process.env.ORIGIN?.split('|') || [];

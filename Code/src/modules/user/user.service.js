@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { APPLICATION_NAME } from "../../../config/config.service.js";
 import {
   OTPActionsEnum,
@@ -31,11 +32,16 @@ import {
   createLoginCredentials,
   decrypt,
   emailEmitter,
+  encrypt,
   generateOTP,
   generatHash,
   NotFoundException,
 } from "../../common/utils/index.js";
-import { deleteOne, findOne } from "../../DB/dataBase.service.js";
+import {
+  deleteOne,
+  findOne,
+  findOneAndUpdate,
+} from "../../DB/dataBase.service.js";
 import { userModel } from "../../DB/models/user.model.js";
 import { redisClient } from "../../DB/redis.connection.js";
 
@@ -73,23 +79,64 @@ export const getUserProfileAndShare = async ({
   viewer = null,
   ip,
 }) => {
-
   const PROFILE_VIEW_TTL = 7 * 24 * 60 * 60;
+
+  const viewersKey = `profile:${profileId}:viewers`;
+  const viewsKey = `profile:${profileId}:views`;
+  const viewedId = viewer?._id ? viewer._id.toString() : ip;
+  const viewerName = viewer?.userName || "anonymous";
+  if (viewer?._id?.toString() === profileId) {
+    const user = await userModel
+      .findById(profileId)
+      .select("userName email phone profilePicture profileCover bio gender DOB")
+      .lean();
+
+    if (!user) {
+      throw NotFoundException({ message: "هذا الحساب غير موجود" });
+    }
+
+    const profileViews = parseInt(await redisClient.get(viewsKey)) || 0;
+    const viewersObj = await redisClient.hGetAll(viewersKey);
+    const viewerList = Object.values(viewersObj).map((v) => JSON.parse(v));
+
+    const result = {
+      _id: user._id,
+      userName: user.userName,
+      profilePicture: user.profilePicture?.secure_url || "",
+      profileCover: user.profileCover?.secure_url || "",
+      profileViews,
+      viewers: viewerList,
+      bio: user.bio,
+      DOB: user.DOB,
+      gender: user.gender,
+    };
+
+    if (viewer?._id?.toString() === profileId) {
+      result.email = user.email;
+      result.phone = user.phone ? await decrypt(user.phone) : null;
+    }
+
+    return result;
+  }
+
   const user = await userModel
     .findById(profileId)
-    .select("userName email phone profilePicture profileCover")
+    .select("userName email phone profilePicture profileCover bio gender DOB")
     .lean();
+
   if (!user) {
     throw NotFoundException({ message: "هذا الحساب غير موجود" });
   }
 
   const existing = await redisClient.hExists(viewersKey, viewedId);
+
   if (!existing) {
     const viewerData = {
       userId: viewer?._id || null,
       userName: viewerName,
       viewedAt: new Date().toISOString(),
     };
+
     await redisClient.hSet(viewersKey, viewedId, JSON.stringify(viewerData));
     await expire({ key: viewersKey, ttl: PROFILE_VIEW_TTL });
 
@@ -102,11 +149,15 @@ export const getUserProfileAndShare = async ({
   const viewerList = Object.values(viewersObj).map((v) => JSON.parse(v));
 
   const result = {
+    _id: user._id,
     userName: user.userName,
     profilePicture: user.profilePicture?.secure_url || "",
     profileCover: user.profileCover?.secure_url || "",
     profileViews,
     viewers: viewerList,
+    bio: user.bio,
+    DOB: user.DOB,
+    gender: user.gender,
   };
 
   if (viewer?._id?.toString() === profileId) {
@@ -164,7 +215,7 @@ export const profilePicture = async (file, user) => {
   });
   user.profilePicture = { public_id, secure_url };
   await user.save();
-  return "Done";
+  return user;
 };
 export const profileCover = async (file, user) => {
   const baseFolder = `${APPLICATION_NAME}/users/${user._id}`;
@@ -177,7 +228,7 @@ export const profileCover = async (file, user) => {
   });
   user.profileCover = { public_id, secure_url };
   await user.save();
-  return "Done";
+  return user;
 };
 export const updatePassword = async (inputs, user) => {
   const { oldPassword, newPassword } = inputs;
@@ -209,6 +260,18 @@ export const logout = async ({ flag }, user, decode) => {
 };
 export const rotateToken = async (user, issure) => {
   return await createLoginCredentials(user, issure);
+};
+export const updateAccount = async (id , data) => {
+  let Phone = data?.phone
+  if (Phone) {
+    Phone = await encrypt(data.phone)
+  }
+  const ID = new mongoose.Types.ObjectId(id)
+  const account = await userModel.findByIdAndUpdate(ID, {$set : {...data ,phone: Phone}} , {new : true})
+  if (!account) {
+    throw NotFoundException({ message: "Not Found" });
+  }
+  return account;
 };
 export const deleteAccount = async (user) => {
   await deleteImage(user);

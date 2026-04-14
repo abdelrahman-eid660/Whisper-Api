@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
-
 const MessageSchema = new mongoose.Schema(
   {
     receiverId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
+      index : true
     },
     senderId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
+      index : true
     },
     content: {
       type: String,
@@ -25,6 +26,7 @@ const MessageSchema = new mongoose.Schema(
         secure_url : String,
       }],
     },
+    isRead : Boolean,
   },
   {
     timestamps: true,

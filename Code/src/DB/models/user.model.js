@@ -9,6 +9,11 @@ const UserSchema = new mongoose.Schema(
       minLength: 2,
       maxLength: 25,
     },
+    bio: {
+      type: String,
+      minLength: 2,
+      maxLength: 100,
+    },
     email: {
       type: String,
       required: true,
@@ -26,7 +31,7 @@ const UserSchema = new mongoose.Schema(
     },
     phone: String,
     gender: {
-      type: Number,
+      type: String,
       enum: Object.values(GenderEnum),
       default: GenderEnum.male,
     },

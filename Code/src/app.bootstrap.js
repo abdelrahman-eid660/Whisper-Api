@@ -17,7 +17,7 @@ async function bootStrap() {
 
   //cors
   const corsOptions = {
-    origin: ORIGIN,
+    // origin: ORIGIN,
     credentials: true,
     optionsSuccessStatus: 200,
   };
@@ -30,13 +30,6 @@ async function bootStrap() {
     "/sarah/profile",
     express.static(path.join(path.resolve(), "src", "upload", "profile")),
   );
-
-  //DB
-  await authenticateDb();
-  //Redis
-  await redicConnection();
-  //Cron-jobs
-  await deleteUnconfirmedUsers();
   //application routing
   app.get("/", (req, res) => res.send("Hello World!"));
   app.use("/Whisper/auth", AuthRouter);
@@ -49,5 +42,16 @@ async function bootStrap() {
   //Global Error Handling
   app.use(globalErrorHandling);
   app.listen(port, () => console.log(`listening on ${port}`));
+  try {
+  //DB
+  await authenticateDb();
+  //Redis
+  await redicConnection();
+  //Cron-jobs
+  await deleteUnconfirmedUsers();
+  } catch (error) {
+    console.log(error.message);
+    
+  }
 }
 export default bootStrap;

@@ -1,6 +1,6 @@
 export const GenderEnum = {
-    male : 0,
-    female : 1
+    male : "Male",
+    female : "Female"
 }
 export const RoleEnum = {
     Admin : 0,

@@ -12,6 +12,5 @@ export const authenticateDb = async () => {
   } catch (error) {
     console.error("Fail to connect on DB ❌");
     console.error(error.message);
-    process.exit(1);
   }
 };
