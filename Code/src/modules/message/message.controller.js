@@ -44,7 +44,7 @@ router.patch(
     return successResponse(res, 200, message);
   }
 );
-router.delete("/:messageId",authorization({accessRole : endPoint.Message}),validation(validators.getMessage),async (req, res, next) => {
+router.delete("/deleteMessage/:messageId",authorization({accessRole : endPoint.Message}),validation(validators.getMessage),async (req, res, next) => {
     const message = await deleteMessage(req.params.messageId , req.user);
     return successResponse(res, 200, message);
   },

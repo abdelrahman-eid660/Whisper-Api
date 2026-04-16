@@ -11,6 +11,9 @@ export const sendMessage = async (
   receiverId,
   user,
 ) => {
+  if (receiverId == user._id) {
+    throw BadRequestException({message : "Invalid action , You can't send a message to yourself"})
+  }
   if(!files.length && ! content){
     throw BadRequestException({message : "You must provide either content or attachments"})
   }

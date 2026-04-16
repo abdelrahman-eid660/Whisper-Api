@@ -101,9 +101,10 @@ export const getUserProfileAndShare = async ({
 
     const result = {
       _id: user._id,
+      viewerId : viewer?._id,
       userName: user.userName,
-      profilePicture: user.profilePicture?.secure_url || "",
-      profileCover: user.profileCover?.secure_url || "",
+      profilePicture: user?.profilePicture?.secure_url || undefined,
+      profileCover: user?.profileCover?.secure_url || undefined,
       profileViews,
       viewers: viewerList,
       bio: user.bio,
@@ -115,7 +116,6 @@ export const getUserProfileAndShare = async ({
       result.email = user.email;
       result.phone = user.phone ? await decrypt(user.phone) : null;
     }
-
     return result;
   }
 
@@ -150,9 +150,10 @@ export const getUserProfileAndShare = async ({
 
   const result = {
     _id: user._id,
+    viewerId : viewer?._id,
     userName: user.userName,
-    profilePicture: user.profilePicture?.secure_url || "",
-    profileCover: user.profileCover?.secure_url || "",
+    profilePicture: user?.profilePicture?.secure_url || undefined,
+    profileCover: user?.profileCover?.secure_url || undefined,
     profileViews,
     viewers: viewerList,
     bio: user.bio,
@@ -164,8 +165,7 @@ export const getUserProfileAndShare = async ({
     result.email = user.email;
     result.phone = user.phone ? await decrypt(user.phone) : null;
   }
-
-  return result;
+  return result
 };
 export const enable2Step_Verification = async (user, inputs) => {
   const { isTwoFactorEnabled } = inputs;
@@ -215,7 +215,7 @@ export const profilePicture = async (file, user) => {
   });
   user.profilePicture = { public_id, secure_url };
   await user.save();
-  return user;
+  return {...user.toObject() , profilePicture : secure_url , profileCover : user?.profileCover?.secure_url};
 };
 export const profileCover = async (file, user) => {
   const baseFolder = `${APPLICATION_NAME}/users/${user._id}`;
@@ -228,7 +228,8 @@ export const profileCover = async (file, user) => {
   });
   user.profileCover = { public_id, secure_url };
   await user.save();
-  return user;
+    return {...user.toObject() ,profilePicture : user?.profilePicture?.secure_url ,profileCover : secure_url};
+
 };
 export const updatePassword = async (inputs, user) => {
   const { oldPassword, newPassword } = inputs;
@@ -261,13 +262,17 @@ export const logout = async ({ flag }, user, decode) => {
 export const rotateToken = async (user, issure) => {
   return await createLoginCredentials(user, issure);
 };
-export const updateAccount = async (id , data) => {
-  let Phone = data?.phone
+export const updateAccount = async (id, data) => {
+  let Phone = data?.phone;
   if (Phone) {
-    Phone = await encrypt(data.phone)
+    Phone = await encrypt(data.phone);
   }
-  const ID = new mongoose.Types.ObjectId(id)
-  const account = await userModel.findByIdAndUpdate(ID, {$set : {...data ,phone: Phone}} , {new : true})
+  const ID = new mongoose.Types.ObjectId(id);
+  const account = await userModel.findByIdAndUpdate(
+    ID,
+    { $set: { ...data, phone: Phone } },
+    { new: true },
+  );
   if (!account) {
     throw NotFoundException({ message: "Not Found" });
   }

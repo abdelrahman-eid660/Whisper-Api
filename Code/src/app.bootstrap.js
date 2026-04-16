@@ -17,14 +17,13 @@ async function bootStrap() {
 
   //cors
   const corsOptions = {
-    origin: ORIGIN,
+    // origin: ORIGIN,
     credentials: true,
     optionsSuccessStatus: 200,
   };
 
   //global Middlewares
   app.use(cors(corsOptions), helmet(), express.json() , limiter);
-
   //Use Image
   app.use(
     "/sarah/profile",
@@ -50,8 +49,7 @@ async function bootStrap() {
   //Cron-jobs
   await deleteUnconfirmedUsers();
   } catch (error) {
-    console.log(error.message);
-    
+    console.log(error);
   }
 }
 export default bootStrap;
