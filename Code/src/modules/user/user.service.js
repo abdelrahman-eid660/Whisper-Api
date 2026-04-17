@@ -88,12 +88,13 @@ export const getUserProfileAndShare = async ({
   if (viewer?._id?.toString() === profileId) {
     const user = await userModel
       .findById(profileId)
-      .select("userName email phone profilePicture profileCover bio gender DOB")
+      .select("userName email phone profilePicture profileCover bio gender DOB isTwoFactorEnabled")
       .lean();
 
     if (!user) {
       throw NotFoundException({ message: "هذا الحساب غير موجود" });
     }
+console.log({user});
 
     const profileViews = parseInt(await redisClient.get(viewsKey)) || 0;
     const viewersObj = await redisClient.hGetAll(viewersKey);
@@ -103,6 +104,7 @@ export const getUserProfileAndShare = async ({
       _id: user._id,
       viewerId : viewer?._id,
       userName: user.userName,
+      isTwoFactorEnabled: user?.isTwoFactorEnabled,
       profilePicture: user?.profilePicture?.secure_url || undefined,
       profileCover: user?.profileCover?.secure_url || undefined,
       profileViews,
@@ -152,6 +154,7 @@ export const getUserProfileAndShare = async ({
     _id: user._id,
     viewerId : viewer?._id,
     userName: user.userName,
+    isTwoFactorEnabled: user?.isTwoFactorEnabled,
     profilePicture: user?.profilePicture?.secure_url || undefined,
     profileCover: user?.profileCover?.secure_url || undefined,
     profileViews,
@@ -167,28 +170,29 @@ export const getUserProfileAndShare = async ({
   }
   return result
 };
-export const enable2Step_Verification = async (user, inputs) => {
-  const { isTwoFactorEnabled } = inputs;
-  if (!isTwoFactorEnabled) {
+export const enable2Step_Verification = async (user) => {  
+  if (!user) {
     throw NotFoundException({ message: "Invalid 2 step verification" });
   }
   return await generateOTPV2StepVerification(user.email);
 };
-export const confirm2Step_Verification = async ({ email, otp }) => {
+export const confirm2Step_Verification = async (user , { otp }) => {  
+  console.log(user);
+  
   const acconut = await findOne({
     model: userModel,
     filter: {
-      email,
+      email : user.email,
       confirmEmail: { $exists: true },
       provider: ProviderEnum.system,
-      TwoStepVerification: { $exists: false },
+      isTwoFactorEnabled: false ,
     },
   });
   if (!acconut) {
     throw NotFoundException({ message: "Fail to find matching account" });
   }
   const hashedOTP = await get({
-    key: otpKey({ type: OTPTypeEnum.TwoStepVerification, key: email }),
+    key: otpKey({ type: OTPTypeEnum.TwoStepVerification, key: user.email }),
   });
 
   if (!hashedOTP) {
@@ -200,7 +204,7 @@ export const confirm2Step_Verification = async ({ email, otp }) => {
   acconut.isTwoFactorEnabled = true;
   await acconut.save();
   await deleteKey(
-    await keys(otpKey({ type: OTPTypeEnum.TwoStepVerification, key: email })),
+    await keys(otpKey({ type: OTPTypeEnum.TwoStepVerification, key: user.email })),
   );
   return acconut;
 };

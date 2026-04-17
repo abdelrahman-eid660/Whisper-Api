@@ -22,12 +22,12 @@ router.patch("/update-password", authorization({accessRole : endPoint.Profile}) 
   const account = await updatePassword(req.body , req.user);
   return successResponse(res, 200, account);
 });
-router.patch("/enable-2Step-veverification", authorization({accessRole : endPoint.Profile}),validation(validators.enable2Step_Verification) ,async (req, res, next) => {
-  const account = await enable2Step_Verification(req.user , req.body);
+router.patch("/enable-2Step-verification", authorization({accessRole : endPoint.Profile}) ,async (req, res, next) => {
+  const account = await enable2Step_Verification(req.user);
   return successResponse(res, 200, account);
 });
-router.patch("/confirm-2Step-veverification", authorization({accessRole : endPoint.Profile}),validation(validators.confirm2Step_Verification) ,async (req, res, next) => {
-  const account = await confirm2Step_Verification(req.body);
+router.patch("/confirm-2Step-verification", authorization({accessRole : endPoint.Profile}),validation(validators.confirm2Step_Verification) ,async (req, res, next) => {
+  const account = await confirm2Step_Verification(req.user , req.body);
   return successResponse(res, 200, account);
 });
 router.patch("/profile-picture",authentication(),cloudFileUpload({validation : fieldValidation.image , size : 12}).single('profilePicture'),validation(validators.profileImage) ,async (req, res, next) => {

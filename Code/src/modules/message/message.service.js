@@ -11,7 +11,7 @@ export const sendMessage = async (
   receiverId,
   user,
 ) => {
-  if (receiverId == user._id) {
+  if (receiverId == user?._id) {
     throw BadRequestException({message : "Invalid action , You can't send a message to yourself"})
   }
   if(!files.length && ! content){
@@ -145,6 +145,7 @@ export const getAllMessage = async (user) => {
       },
     },
   ]);
+console.log(message);
 
   return message;
 };
@@ -156,7 +157,6 @@ export const deleteMessage = async (messageId, user) => {
       receiverId: user._id,
     },
   });
-
   if (!message) {
     throw NotFoundException({
       message: "Invalid message or not authorized action",

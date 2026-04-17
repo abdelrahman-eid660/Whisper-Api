@@ -22,7 +22,6 @@ export const enable2Step_Verification = {
 }
 export const confirm2Step_Verification = {
     body : Joi.object().keys({
-        email : generalValidationFields.email.required(),
         otp : generalValidationFields.otp.required(),
     }).required(),
 }
